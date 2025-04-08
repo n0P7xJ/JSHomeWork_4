@@ -1,0 +1,14 @@
+[
+    {
+        "username": "Адмін",
+        "email": "novakvova@gmail.com",
+        "password": "Qwerty1-",
+        "role": "admin"
+    },
+    {
+        "username": "Користувач",
+        "email": "user@example.com",
+        "password": "User1234",
+        "role": "user"
+    }
+]
