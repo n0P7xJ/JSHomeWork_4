@@ -1,63 +1,82 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const registrationForm = document.getElementById('registrationForm');
-    const usernameError = document.getElementById('usernameError');
-    const emailError = document.getElementById('emailError');
-    const passwordError = document.getElementById('passwordError');
+document.addEventListener("DOMContentLoaded", () => {
+    const userMenu = document.getElementById("userMenu");
+    const userButton = document.getElementById("userButton");
+    const dropdownMenu = document.getElementById("dropdownMenu");
+    const logoutButton = document.getElementById("logoutButton");
 
-    registrationForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+    const profileUsername = document.getElementById("profileUsername");
+    const profileEmail = document.getElementById("profileEmail");
 
-        // Очистити попередні помилки
-        usernameError.classList.add('hidden');
-        emailError.classList.add('hidden');
-        passwordError.classList.add('hidden');
+    const loginForm = document.getElementById("loginForm");
+    const registrationForm = document.getElementById("registrationForm");
 
-        const username = registrationForm.username.value;
-        const email = registrationForm.email.value;
-        const password = registrationForm.password.value;
+    // Отримання даних користувача з localStorage
+    const user = JSON.parse(localStorage.getItem("user"));
 
-        const user = {
-            username: username,
-            email: email,
-            password: password
-        };
-
-        try {
-            const response = await fetch('https://goose.itstep.click/api/Account/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(user)
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                if (response.status === 400) {
-                    if (errorData.errors) {
-                        if (errorData.errors.Username) {
-                            usernameError.textContent = errorData.errors.Username.join(', ');
-                            usernameError.classList.remove('hidden');
-                        }
-                        if (errorData.errors.Email) {
-                            emailError.textContent = errorData.errors.Email.join(', ');
-                            emailError.classList.remove('hidden');
-                        }
-                        if (errorData.errors.Password) {
-                            passwordError.textContent = errorData.errors.Password.join(', ');
-                            passwordError.classList.remove('hidden');
-                        }
-                    }
-                } else {
-                    alert('Сталася помилка. Спробуйте ще раз.');
-                }
-            } else {
-                alert('Реєстрація успішна!');
-                registrationForm.reset();
-            }
-        } catch (error) {
-            console.error('Помилка:', error);
-            alert('Сталася помилка. Спробуйте ще раз.');
+    // Відображення даних у профілі
+    if (user) {
+        if (profileUsername && profileEmail) {
+            profileUsername.textContent = user.username || "Невідомий користувач";
+            profileEmail.textContent = user.email || "Невідомий email";
         }
-    });
+
+        // Відображення меню користувача
+        if (userMenu) {
+            userMenu.classList.remove("hidden");
+        }
+    } else {
+        // Якщо користувач не залогінений і це сторінка профілю, перенаправляємо на сторінку входу
+        if (profileUsername || profileEmail) {
+            window.location.href = "login.html";
+        }
+    }
+
+    // Випадаюче меню
+    if (userButton) {
+        userButton.addEventListener("click", () => {
+            dropdownMenu.classList.toggle("hidden");
+        });
+    }
+
+    // Логіка виходу
+    if (logoutButton) {
+        logoutButton.addEventListener("click", () => {
+            localStorage.removeItem("user");
+            window.location.href = "login.html";
+        });
+    }
+
+    // Логіка реєстрації
+    if (registrationForm) {
+        registrationForm.addEventListener("submit", (e) => {
+            e.preventDefault(); // Запобігає перезавантаженню сторінки
+
+            const username = document.getElementById("username").value;
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            // Збереження даних у localStorage
+            localStorage.setItem("user", JSON.stringify({ username, email, password }));
+            alert("Реєстрація успішна!");
+            window.location.href = "login.html"; // Перенаправлення на сторінку входу
+        });
+    }
+
+    // Логіка входу
+    if (loginForm) {
+        loginForm.addEventListener("submit", (e) => {
+            e.preventDefault(); // Запобігає перезавантаженню сторінки
+
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            // Перевірка даних користувача
+            if (user && user.email === email && user.password === password) {
+                alert("Вхід успішний!");
+                window.location.href = "profile.html"; // Перенаправлення на сторінку профілю
+            } else {
+                alert("Невірний email або пароль!");
+            }
+        });
+    }
 });
